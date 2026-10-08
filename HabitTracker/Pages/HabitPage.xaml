@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:HabitTracker.ViewModels"
+             x:Class="HabitTracker.Pages.HabitPage"
+             x:DataType="vm:HabitViewModel"
+             Title="{Binding Name}">
+
+    <ContentPage.Resources>
+        <Style x:Key="StatValue" TargetType="Label">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource AccentDark}}" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="StatCaption" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+        </Style>
+        <Style x:Key="WeekDay" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" />
+            <Setter Property="HorizontalTextAlignment" Value="Center" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16" Padding="20,8,20,20">
+
+        <!-- Статистика -->
+        <Border BackgroundColor="{AppThemeBinding Light={StaticResource Card}, Dark={StaticResource CardDark}}" StrokeThickness="0"
+                StrokeShape="RoundRectangle 16" Padding="8,16">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <VerticalStackLayout>
+                    <Label Text="{Binding Current}" Style="{StaticResource StatValue}" />
+                    <Label Text="серия" Style="{StaticResource StatCaption}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1">
+                    <Label Text="{Binding Best}" Style="{StaticResource StatValue}" />
+                    <Label Text="рекорд" Style="{StaticResource StatCaption}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2">
+                    <Label Text="{Binding Total}" Style="{StaticResource StatValue}" />
+                    <Label Text="всего" Style="{StaticResource StatCaption}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="3">
+                    <Label Text="{Binding Rate}" Style="{StaticResource StatValue}" />
+                    <Label Text="за 30 дней" Style="{StaticResource StatCaption}" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Дни недели -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*,*,*" WidthRequest="294" Margin="0,0,0,-8">
+            <Label Text="Пн" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="1" Text="Вт" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="2" Text="Ср" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="3" Text="Чт" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="4" Text="Пт" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="5" Text="Сб" Style="{StaticResource WeekDay}" />
+            <Label Grid.Column="6" Text="Вс" Style="{StaticResource WeekDay}" />
+        </Grid>
+
+        <!-- Сетка последних 12 недель; тап по дню ставит или снимает отметку -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Cells}" SelectionMode="None"
+                        WidthRequest="294" ItemsUpdatingScrollMode="KeepLastItemInView">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="7" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:DayCell">
+                    <Grid WidthRequest="42" HeightRequest="42">
+                        <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 9"
+                                StrokeThickness="0" BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding Done}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource AccentDark}}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsToday}" Value="True">
+                                    <Setter Property="StrokeThickness" Value="2" />
+                                    <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource PrimaryDark}}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsFuture}" Value="True">
+                                    <Setter Property="Opacity" Value="0.35" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding ToggleCommand, Source={RelativeSource AncestorType={x:Type vm:HabitViewModel}}, x:DataType=vm:HabitViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding Number}" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}"
+                                   HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Done}" Value="True">
+                                        <Setter Property="TextColor" Value="{StaticResource White}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Grid.Row="3" Text="Удалить привычку" Command="{Binding DeleteCommand}"
+                BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#DC2626, Dark=#F87171}" />
+    </Grid>
+</ContentPage>

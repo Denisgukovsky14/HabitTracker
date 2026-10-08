@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:HabitTracker.ViewModels"
+             x:Class="HabitTracker.Pages.MainPage"
+             x:DataType="vm:MainViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*" Padding="20,24,20,0">
+
+        <VerticalStackLayout Spacing="2" Margin="4,0,4,16">
+            <Label Text="Привычки" FontSize="32" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}" />
+            <Label Text="{Binding DateText}" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" />
+            <Label Text="{Binding Summary}" FontSize="15" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource AccentDark}}" Margin="0,6,0,0" />
+        </VerticalStackLayout>
+
+        <Button Text="{Binding ThemeIcon}" Command="{Binding ToggleThemeCommand}"
+                FontSize="22" Padding="0" WidthRequest="44" HeightRequest="44"
+                BackgroundColor="Transparent" HorizontalOptions="End" VerticalOptions="Start" />
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Habits}" SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="30,60" Spacing="8">
+                    <Label Text="🌱" FontSize="48" HorizontalOptions="Center" />
+                    <Label Text="Пока нет привычек" FontSize="18" FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}" HorizontalOptions="Center" />
+                    <Label Text="Нажмите «+», чтобы добавить первую"
+                           TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:HabitRow">
+                    <Border BackgroundColor="{AppThemeBinding Light={StaticResource Card}, Dark={StaticResource CardDark}}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16" Padding="16,12">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, x:DataType=vm:MainViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                </VerticalStackLayout.GestureRecognizers>
+                                <Label Text="{Binding Habit.Name}" FontSize="17" FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light={StaticResource Ink}, Dark={StaticResource InkDark}}" />
+                                <Label Text="{Binding StreakText}" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource Muted}, Dark={StaticResource MutedDark}}" />
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1" WidthRequest="44" HeightRequest="44" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 22" BackgroundColor="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource SecondaryDark}}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding DoneToday}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource AccentDark}}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding ToggleCommand, Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, x:DataType=vm:MainViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="✓" FontSize="20" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource AccentDark}}"
+                                       HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding DoneToday}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource White}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.Footer>
+                <!-- Отступ, чтобы последнюю привычку не закрывала кнопка «+» -->
+                <ContentView HeightRequest="90" />
+            </CollectionView.Footer>
+        </CollectionView>
+
+        <Button Grid.Row="1" Text="+" FontSize="28" Padding="0"
+                WidthRequest="60" HeightRequest="60" CornerRadius="30"
+                HorizontalOptions="End" VerticalOptions="End" Margin="0,0,4,24"
+                Command="{Binding AddCommand}" />
+    </Grid>
+</ContentPage>
